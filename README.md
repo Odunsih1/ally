@@ -143,7 +143,7 @@ Click the **Fork** button at the top right of this page.
 
 ### 2. Clone your fork
 ```bash
-git clone https://github.com/YOUR-USERNAME/ally.git
+git clone https://github.com/Odunsih1/ally.git
 cd ally
 ```
 
