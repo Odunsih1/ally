@@ -1,0 +1,11 @@
+{
+  "name": "ally",
+  "version": "1.0.0",
+  "description": "accessibility launcher",
+  "main": "accessibility-launcher.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Henry Odunsi",
+  "license": "ISC"
+}
