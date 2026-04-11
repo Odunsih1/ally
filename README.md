@@ -37,21 +37,34 @@ Add this inside your root layout `<body>`:
 ```
 
 ### Angular
-Add this inside your root component `<body>`:
+Add to the `scripts` array in `angular.json`:
+```json
+"scripts": [
+  "https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.0.1/accessibility-launcher.v1.0.1.min.js"
+]
+```
+Or directly in `index.html`:
 ```html
 <script
   src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.0.1/accessibility-launcher.v1.0.1.min.js"
-  defer
-/>
+  defer>
+</script>
 ```
 
 ### Vue
-Add this inside your root component `<body>`:
+In your `public/index.html`:
 ```html
 <script
   src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.0.1/accessibility-launcher.v1.0.1.min.js"
-  defer
-/>
+  defer>
+</script>
+```
+Or programmatically in `main.js` / `main.ts`:
+```js
+const script = document.createElement('script');
+script.src = 'https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.0.1/accessibility-launcher.v1.0.1.min.js';
+script.defer = true;
+document.body.appendChild(script);
 ```
 
 ### Browser console (for testing)
@@ -59,6 +72,48 @@ Add this inside your root component `<body>`:
 var s = document.createElement('script');
 s.src = 'https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.0.1/accessibility-launcher.v1.0.1.min.js';
 document.body.appendChild(s);
+```
+
+---
+
+## npm
+
+### Install
+```bash
+npm i @odunsih/ally
+```
+
+### Any HTML site
+After installing, copy the script from `node_modules` into your project and reference it:
+```html
+<script src="node_modules/@odunsih/ally/accessibility-launcher.min.js" defer></script>
+```
+
+### Next.js / React
+```tsx
+// In your root layout or _app.tsx
+<script
+  src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.0.1/accessibility-launcher.v1.0.1.min.js"
+  defer
+/>
+```
+Or import it directly in your entry file:
+```js
+import '@odunsih/ally';
+```
+
+### Angular
+In `angular.json`, reference the package from `node_modules`:
+```json
+"scripts": [
+  "node_modules/@odunsih/ally/accessibility-launcher.min.js"
+]
+```
+
+### Vue
+In `main.js` / `main.ts`:
+```js
+import '@odunsih/ally';
 ```
 
 ---
