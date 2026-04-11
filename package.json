@@ -1,11 +1,21 @@
 {
-  "name": "ally",
+  "name": "@odunsih/ally",
   "version": "1.0.0",
-  "description": "accessibility launcher",
+  "description": "A lightweight zero-dependency accessibility widget",
   "main": "accessibility-launcher.js",
+  "files": [
+    "accessibility-launcher.js",
+    "accessibility-launcher.min.js",
+    "README.md"
+  ],
+  "keywords": ["accessibility", "a11y", "widget", "launcher"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Henry Odunsi",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Odunsih1/ally"
+  }
 }
