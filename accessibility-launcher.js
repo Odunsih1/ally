@@ -44,7 +44,7 @@
       font-family: system-ui, sans-serif;
     }
     #__a11y-launcher:hover { background: #1d4ed8; transform: scale(1.07); }
-    #__a11y-launcher svg { width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    #__a11y-launcher svg { width: 26px; height: 26px; fill: #fff; pointer-events: none; }
 
     #__a11y-panel {
       all: initial;
@@ -75,7 +75,7 @@
       border-bottom: 1px solid #e5e7eb;
       position: sticky;
       top: 0;
-      background: #fff;
+      background: #0000;
       z-index: 1;
     }
     #__a11y-panel .__a11y-header h2 {
@@ -86,7 +86,8 @@
       align-items: center;
       gap: 7px;
     }
-    #__a11y-panel .__a11y-header h2 svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    #__a11y-panel .__a11y-header h2 svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+    #__a11y-panel svg { pointer-events: none; }
     #__a11y-panel .__a11y-close {
       background: none;
       border: none;
@@ -211,7 +212,7 @@
 
   /* ─── SVG icons (inline) ─── */
   const icons = {
-    accessibility: `<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><path d="M9 10h6M12 10v9M9 19l1-5M15 19l-1-5"/></svg>`,
+    accessibility: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 3.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-3 4.5h6a.5.5 0 0 1 .45.72L14 13.5V18a.75.75 0 0 1-1.5 0v-3.5h-1V18a.75.75 0 0 1-1.5 0v-4.5l-1.45-2.78A.5.5 0 0 1 9 10z"/></svg>`,
     close: `<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
     type: `<svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
     eye: `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
