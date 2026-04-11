@@ -118,6 +118,22 @@ import '@odunsih/ally';
 
 ---
 
+## Accessibility Note
+
+Ally enhances accessibility but does not replace proper semantic HTML,
+ARIA usage, and inclusive design practices.
+
+## Why Ally?
+
+Unlike heavy accessibility overlays, Ally is:
+
+- Lightweight (no dependencies)
+- Developer-friendly (fully transparent)
+- Non-intrusive (no DOM hijacking)
+- Privacy-safe (no tracking, no external APIs)
+
+Ally does NOT claim to make your site fully WCAG compliant. It provides user-controlled accessibility enhancements.
+
 ## Contributing
 
 Contributions are welcome and appreciated! Here's how to get started:
