@@ -24,14 +24,14 @@ A lightweight, zero-dependency accessibility widget you can drop into any websit
 
 ### Any HTML site
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.1/accessibility-launcher.v1.1.1.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.2/accessibility-launcher.v1.1.2.min.js" defer></script>
 ```
 
 ### Next.js / React
 Add this inside your root layout `<body>`:
 ```tsx
 <script
-  src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.1/accessibility-launcher.v1.1.1.min.js"
+  src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.2/accessibility-launcher.v1.1.2.min.js"
   defer
 />
 ```
@@ -40,13 +40,13 @@ Add this inside your root layout `<body>`:
 Add to the `scripts` array in `angular.json`:
 ```json
 "scripts": [
-  "https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.1/accessibility-launcher.v1.1.1.min.js"
+  "https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.2/accessibility-launcher.v1.1.2.min.js"
 ]
 ```
 Or directly in `index.html`:
 ```html
 <script
-  src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.1/accessibility-launcher.v1.1.1.min.js"
+  src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.2/accessibility-launcher.v1.1.2.min.js"
   defer>
 </script>
 ```
@@ -55,14 +55,14 @@ Or directly in `index.html`:
 In your `public/index.html`:
 ```html
 <script
-  src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.1/accessibility-launcher.v1.1.1.min.js"
+  src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.2/accessibility-launcher.v1.1.2.min.js"
   defer>
 </script>
 ```
 Or programmatically in `main.js` / `main.ts`:
 ```js
 const script = document.createElement('script');
-script.src = 'https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.1/accessibility-launcher.v1.1.1.min.js';
+script.src = 'https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.2/accessibility-launcher.v1.1.2.min.js';
 script.defer = true;
 document.body.appendChild(script);
 ```
@@ -70,7 +70,7 @@ document.body.appendChild(script);
 ### Browser console (for testing)
 ```js
 var s = document.createElement('script');
-s.src = 'https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.1/accessibility-launcher.v1.1.1.min.js';
+s.src = 'https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.2/accessibility-launcher.v1.1.2.min.js';
 document.body.appendChild(s);
 ```
 
@@ -93,7 +93,7 @@ After installing, copy the script from `node_modules` into your project and refe
 ```tsx
 // In your root layout or _app.tsx
 <script
-  src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.1/accessibility-launcher.v1.1.1.min.js"
+  src="https://cdn.jsdelivr.net/gh/Odunsih1/ally@v1.1.2/accessibility-launcher.v1.1.2.min.js"
   defer
 />
 ```

@@ -116,7 +116,7 @@
       border-bottom: 1px solid #cbd5e1;
       position: sticky;
       top: 0;
-      background: #ffffff;
+      background: #000000ff;
       z-index: 1;
       border-radius: 16px 16px 0 0;
     }
@@ -127,8 +127,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      /* #1e3a8a on #ffffff = 9.8:1 WCAG AAA ✓ */
-      color: #1e3a8a;
+      color: #000;
     }
     #__a11y-panel .__a11y-header h2 svg {
       width: 18px; height: 18px;
@@ -320,7 +319,7 @@
       cursor: pointer !important;
       padding: 5px;
       border-radius: 7px;
-      /* #374151 on #ffffff = 10.7:1 WCAG AAA ✓ */
+      /* #374151 on #000000ff = 10.7:1 WCAG AAA ✓ */
       color: #374151;
       display: flex;
       align-items: center;
@@ -350,6 +349,16 @@
     }
     .__a11y-reset:hover { background: #fee2e2; border-color: #f87171; }
     .__a11y-reset svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .__a11y-footer {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .__a11y-footer a {
+      color: #fff;
+      text-decoration: underline;
+    }
+
 
     /* Applied classes */
     html.accessibility-high-contrast * { border-color: #000 !important; }
@@ -472,14 +481,14 @@
     </svg>`;
 
     return {
-      default:       enc(arrowSvg,      4,  2),
-      pointer:       enc(pointerSvg,    9,  1),
-      text:          enc(textSvg,       10, 14) + ", text",
+      default: enc(arrowSvg, 4, 2),
+      pointer: enc(pointerSvg, 9, 1),
+      text: enc(textSvg, 10, 14) + ", text",
       "not-allowed": enc(notAllowedSvg, 16, 16) + ", not-allowed",
-      crosshair:     enc(crosshairSvg,  16, 16) + ", crosshair",
-      grab:          enc(grabSvg,       12, 10),
-      grabbing:      enc(grabSvg,       12, 10),
-      move:          enc(crosshairSvg,  16, 16) + ", move",
+      crosshair: enc(crosshairSvg, 16, 16) + ", crosshair",
+      grab: enc(grabSvg, 12, 10),
+      grabbing: enc(grabSvg, 12, 10),
+      move: enc(crosshairSvg, 16, 16) + ", move",
     };
   }
 
@@ -556,20 +565,20 @@
   /* ─── SVG icons ─── */
   const icons = {
     accessibility: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 3.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-3 4.5h6a.5.5 0 0 1 .45.72L14 13.5V18a.75.75 0 0 1-1.5 0v-3.5h-1V18a.75.75 0 0 1-1.5 0v-4.5l-1.45-2.78A.5.5 0 0 1 9 10z"/></svg>`,
-    close:    `<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
-    type:     `<svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
-    eye:      `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+    close: `<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
+    type: `<svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
+    eye: `<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
     contrast: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/></svg>`,
-    cursor:   `<svg viewBox="0 0 24 24"><path d="M5 3l14 9-7 1-4 7z"/></svg>`,
-    palette:  `<svg viewBox="0 0 24 24"><circle cx="6.5" cy="11.5" r="1.5"/><circle cx="9.5" cy="7.5" r="1.5"/><circle cx="14.5" cy="7.5" r="1.5"/><circle cx="17.5" cy="11.5" r="1.5"/><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 1.1 0 2-.9 2-2 0-.53-.19-1.01-.5-1.38-.31-.37-.5-.85-.5-1.37 0-1.1.9-2 2-2h2.36c3.09 0 5.64-2.55 5.64-5.64C22 6.22 17.52 2 12 2z"/></svg>`,
-    image:    `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
-    font:     `<svg viewBox="0 0 24 24"><path d="M4 20h4l8-12-4-3-8 15z"/><path d="M13.5 6.5l4 3"/></svg>`,
-    zoomin:   `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>`,
-    zoomout:  `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>`,
-    reset:    `<svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.96"/></svg>`,
-    textColor:`<svg viewBox="0 0 24 24"><path d="M4 20h4l8-12-4-3-8 15z"/><path d="M2 22h20" stroke-width="2.5"/></svg>`,
-    bgColor:  `<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-16 0c0 4.42 7 11 8 11s8-6.58 8-11z"/></svg>`,
-    xMark:    `<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
+    cursor: `<svg viewBox="0 0 24 24"><path d="M5 3l14 9-7 1-4 7z"/></svg>`,
+    palette: `<svg viewBox="0 0 24 24"><circle cx="6.5" cy="11.5" r="1.5"/><circle cx="9.5" cy="7.5" r="1.5"/><circle cx="14.5" cy="7.5" r="1.5"/><circle cx="17.5" cy="11.5" r="1.5"/><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 1.1 0 2-.9 2-2 0-.53-.19-1.01-.5-1.38-.31-.37-.5-.85-.5-1.37 0-1.1.9-2 2-2h2.36c3.09 0 5.64-2.55 5.64-5.64C22 6.22 17.52 2 12 2z"/></svg>`,
+    image: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
+    font: `<svg viewBox="0 0 24 24"><path d="M4 20h4l8-12-4-3-8 15z"/><path d="M13.5 6.5l4 3"/></svg>`,
+    zoomin: `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>`,
+    zoomout: `<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>`,
+    reset: `<svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.96"/></svg>`,
+    textColor: `<svg viewBox="0 0 24 24"><path d="M4 20h4l8-12-4-3-8 15z"/><path d="M2 22h20" stroke-width="2.5"/></svg>`,
+    bgColor: `<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-16 0c0 4.42 7 11 8 11s8-6.58 8-11z"/></svg>`,
+    xMark: `<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
   };
 
   /* ─── Build panel HTML ─── */
@@ -581,7 +590,9 @@
         role="switch"
         aria-checked="${on}"
         aria-label="${label}: ${on ? "on" : "off"}">
-        <span class="__a11y-row-label" aria-hidden="true">${icons[iconKey] || ""}${label}</span>
+        <span class="__a11y-row-label" aria-hidden="true">${
+          icons[iconKey] || ""
+        }${label}</span>
         <div class="__a11y-toggle" aria-hidden="true"></div>
       </button>`;
   }
@@ -592,17 +603,23 @@
     const rowId = `__a11y-color-${key}`;
     return `
       <div class="__a11y-color-row" role="group" aria-labelledby="${rowId}-lbl">
-        <span class="__a11y-color-label" id="${rowId}-lbl">${icons[iconKey] || ""}${label}</span>
+        <span class="__a11y-color-label" id="${rowId}-lbl">${
+      icons[iconKey] || ""
+    }${label}</span>
         <div class="__a11y-color-input-wrap">
           <div class="__a11y-color-swatch" title="Choose ${label.toLowerCase()}">
             <div class="__a11y-swatch-fill" style="background:${val}" aria-hidden="true"></div>
             <input type="color" value="${val}" data-color-key="${key}"
               aria-label="Choose ${label.toLowerCase()}, current value ${val}">
           </div>
-          ${isSet
-            ? `<button class="__a11y-color-reset-btn" data-color-clear="${key}"
-                 aria-label="Reset ${label.toLowerCase()} to default">${icons.xMark}</button>`
-            : ""}
+          ${
+            isSet
+              ? `<button class="__a11y-color-reset-btn" data-color-clear="${key}"
+                 aria-label="Reset ${label.toLowerCase()} to default">${
+                  icons.xMark
+                }</button>`
+              : ""
+          }
         </div>
       </div>`;
   }
@@ -617,47 +634,66 @@
       </div>
       <div class="__a11y-body">
 
-        <div role="group" aria-label="Text size, currently ${settings.fontSize}%">
-          <div class="__a11y-section-label" aria-hidden="true">Text size — ${settings.fontSize}%</div>
+        <div role="group" aria-label="Text size, currently ${
+          settings.fontSize
+        }%">
+          <div class="__a11y-section-label" aria-hidden="true">Text size — ${
+            settings.fontSize
+          }%</div>
           <div class="__a11y-font-row">
-            <button class="__a11y-font-btn" id="__a11y-dec" aria-label="Decrease text size">${icons.zoomout}</button>
-            <div class="__a11y-font-display" aria-live="polite" aria-atomic="true" aria-hidden="true">${settings.fontSize}%</div>
-            <button class="__a11y-font-btn" id="__a11y-inc" aria-label="Increase text size">${icons.zoomin}</button>
+            <button class="__a11y-font-btn" id="__a11y-dec" aria-label="Decrease text size">${
+              icons.zoomout
+            }</button>
+            <div class="__a11y-font-display" aria-live="polite" aria-atomic="true" aria-hidden="true">${
+              settings.fontSize
+            }%</div>
+            <button class="__a11y-font-btn" id="__a11y-inc" aria-label="Increase text size">${
+              icons.zoomin
+            }</button>
           </div>
         </div>
 
         <div role="group" aria-labelledby="__a11y-lbl-cursor">
           <div class="__a11y-section-label" id="__a11y-lbl-cursor" aria-hidden="true">Cursor</div>
           ${toggleRow("cursorSize", "Large cursor", "cursor")}
-          ${settings.cursorSize === "large" ? `
-            ${colorRow("cursorColor",   "Cursor color",   "cursor",  "#000000")}
+          ${
+            settings.cursorSize === "large"
+              ? `
+            ${colorRow("cursorColor", "Cursor color", "cursor", "#000000")}
             ${colorRow("cursorBgColor", "Cursor outline", "palette", "#ffffff")}
-          ` : ""}
+          `
+              : ""
+          }
         </div>
 
         <div role="group" aria-labelledby="__a11y-lbl-visual">
           <div class="__a11y-section-label" id="__a11y-lbl-visual" aria-hidden="true">Visual</div>
           ${toggleRow("highContrast", "High contrast", "contrast")}
           ${toggleRow("invertColors", "Invert colors", "eye")}
-          ${toggleRow("grayscale",    "Grayscale",     "contrast")}
-          ${toggleRow("hideImages",   "Hide images",   "image")}
+          ${toggleRow("grayscale", "Grayscale", "contrast")}
+          ${toggleRow("hideImages", "Hide images", "image")}
         </div>
 
         <div role="group" aria-labelledby="__a11y-lbl-colors">
           <div class="__a11y-section-label" id="__a11y-lbl-colors" aria-hidden="true">Colors</div>
-          ${colorRow("bgColor",   "Page background", "bgColor",    "#ffffff")}
-          ${colorRow("textColor", "Text color",      "textColor",  "#000000")}
+          ${colorRow("bgColor", "Page background", "bgColor", "#ffffff")}
+          ${colorRow("textColor", "Text color", "textColor", "#000000")}
         </div>
 
         <div role="group" aria-labelledby="__a11y-lbl-content">
           <div class="__a11y-section-label" id="__a11y-lbl-content" aria-hidden="true">Content</div>
-          ${toggleRow("textSpacing",  "More text spacing", "type")}
-          ${toggleRow("readableFont", "Readable font",     "font")}
+          ${toggleRow("textSpacing", "More text spacing", "type")}
+          ${toggleRow("readableFont", "Readable font", "font")}
         </div>
 
         <button class="__a11y-reset" id="__a11y-reset">
           ${icons.reset} Reset all settings
         </button>
+        <div class="__a11y-footer">
+        <a href="https://www.henryodunsi.com/" target="_blank" rel="noopener noreferrer">
+          Built by Henry Odunsi
+        </a>
+        </div>
       </div>`;
   }
 
@@ -666,8 +702,8 @@
     const html = document.documentElement;
     html.style.fontSize = `${settings.fontSize}%`;
     html.classList.toggle("accessibility-high-contrast", settings.highContrast);
-    html.classList.toggle("accessibility-text-spacing",  settings.textSpacing);
-    html.classList.toggle("accessibility-hide-images",   settings.hideImages);
+    html.classList.toggle("accessibility-text-spacing", settings.textSpacing);
+    html.classList.toggle("accessibility-hide-images", settings.hideImages);
     html.classList.toggle("accessibility-readable-font", settings.readableFont);
 
     if (settings.invertColors) {
@@ -678,8 +714,8 @@
       html.style.filter = "none";
     }
 
-    document.body.style.backgroundColor = settings.bgColor   || "";
-    document.body.style.color            = settings.textColor || "";
+    document.body.style.backgroundColor = settings.bgColor || "";
+    document.body.style.color = settings.textColor || "";
 
     applyCustomCursors();
   }
@@ -689,8 +725,8 @@
     panel.innerHTML = buildPanel();
 
     document.getElementById("__a11y-close").onclick = () => closePanel();
-    document.getElementById("__a11y-dec").onclick   = () => changeFontSize(-10);
-    document.getElementById("__a11y-inc").onclick   = () => changeFontSize(+10);
+    document.getElementById("__a11y-dec").onclick = () => changeFontSize(-10);
+    document.getElementById("__a11y-inc").onclick = () => changeFontSize(+10);
     document.getElementById("__a11y-reset").onclick = resetSettings;
 
     panel.querySelectorAll(".__a11y-row[data-key]").forEach((btn) => {
@@ -701,7 +737,9 @@
       input.addEventListener("input", (e) => {
         const key = e.target.dataset.colorKey;
         settings[key] = e.target.value;
-        const fill = e.target.closest(".__a11y-color-swatch").querySelector(".__a11y-swatch-fill");
+        const fill = e.target
+          .closest(".__a11y-color-swatch")
+          .querySelector(".__a11y-swatch-fill");
         if (fill) fill.style.background = e.target.value;
         applySettings();
       });
@@ -738,14 +776,20 @@
     const focusable = getFocusableEls();
     if (!focusable.length) return;
     const first = focusable[0];
-    const last  = focusable[focusable.length - 1];
+    const last = focusable[focusable.length - 1];
     if (e.shiftKey) {
-      if (document.activeElement === first || !panel.contains(document.activeElement)) {
+      if (
+        document.activeElement === first ||
+        !panel.contains(document.activeElement)
+      ) {
         e.preventDefault();
         last.focus();
       }
     } else {
-      if (document.activeElement === last || !panel.contains(document.activeElement)) {
+      if (
+        document.activeElement === last ||
+        !panel.contains(document.activeElement)
+      ) {
         e.preventDefault();
         first.focus();
       }
