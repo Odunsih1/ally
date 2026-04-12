@@ -1,8 +1,3 @@
-/**
- * Accessibility Launcher — Drop-in Script v2.1
- * Fixes: cursor shape, WCAG contrast, focus trap, focus return on close
- * Usage: <script src="accessibility-launcher.js"></script>
- */
 (function () {
   if (document.getElementById("__a11y-launcher")) return;
 
