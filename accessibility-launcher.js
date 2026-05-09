@@ -20,11 +20,331 @@
   let panelOpen = false;
   let cursorStyleEl = null;
 
+  /* ─── Skip Link: Detection Helpers ─── */
+
+  /**
+   * Check whether a skip link already exists on the page.
+   * Looks for <a> tags in the first ~5 focusable elements of <body>
+   * whose href is a hash and whose text suggests "skip" intent.
+   */
+  function pageHasSkipLink() {
+    const skipPatterns = /skip|jump|bypass/i;
+    // Check the first 10 children of body for skip link candidates
+    const bodyChildren = Array.from(document.body.children).slice(0, 10);
+    for (const el of bodyChildren) {
+      const anchors =
+        el.tagName === "A" ? [el] : Array.from(el.querySelectorAll("a"));
+      for (const a of anchors) {
+        if (
+          a.href &&
+          a.href.includes("#") &&
+          skipPatterns.test(a.textContent)
+        ) {
+          return true;
+        }
+      }
+      // Also check if the element itself is a skip link anchor
+      if (
+        el.tagName === "A" &&
+        el.href &&
+        el.href.includes("#") &&
+        skipPatterns.test(el.textContent)
+      ) {
+        return true;
+      }
+    }
+    // Also do a broader check for common skip-link class/id patterns
+    const commonSelectors = [
+      ".skip-link",
+      ".skip-nav",
+      ".skip-to-content",
+      "#skip-link",
+      "#skip-nav",
+      "#skip-to-content",
+      "[class*='skip']",
+      "[id*='skip']",
+    ];
+    for (const sel of commonSelectors) {
+      try {
+        if (document.querySelector(sel)) return true;
+      } catch (_) {
+        /* ignore invalid selectors */
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Detect the main content element using a priority chain.
+   * Returns { el, confidence } where confidence is 'explicit' | 'convention' | 'heuristic'
+   * Side effect: assigns role="main" and a stable ID if found via heuristic.
+   */
+  function detectMainContent() {
+    // Priority 1 — Semantic / explicit
+    const semanticMain =
+      document.querySelector("main") || document.querySelector("[role='main']");
+    if (semanticMain) {
+      ensureId(semanticMain, "__a11y-main-content");
+      return { el: semanticMain, confidence: "explicit" };
+    }
+
+    // Priority 2 — Common ID / class conventions
+    const conventions = [
+      "#main-content",
+      "#main",
+      "#content",
+      "#primary",
+      "#page-content",
+      "#wrapper",
+      "#site-content",
+      ".main-content",
+      ".page-content",
+      ".content-area",
+      ".site-content",
+      ".entry-content",
+      "#maincontent",
+    ];
+    for (const sel of conventions) {
+      try {
+        const el = document.querySelector(sel);
+        if (el) {
+          ensureId(el, "__a11y-main-content");
+          el.setAttribute("role", "main");
+          return { el, confidence: "convention" };
+        }
+      } catch (_) {
+        /* ignore */
+      }
+    }
+
+    // Priority 3 — Landmark heuristics
+    // 3a. First <article> on the page
+    const article = document.querySelector("article");
+    if (article) {
+      ensureId(article, "__a11y-main-content");
+      article.setAttribute("role", "main");
+      return { el: article, confidence: "heuristic" };
+    }
+
+    // 3b. First <section> not nested inside header/footer/nav/aside
+    const sections = Array.from(document.querySelectorAll("section"));
+    for (const section of sections) {
+      if (!section.closest("header, footer, nav, aside")) {
+        ensureId(section, "__a11y-main-content");
+        section.setAttribute("role", "main");
+        return { el: section, confidence: "heuristic" };
+      }
+    }
+
+    // 3c. Largest text-content block — measure block-level containers
+    const candidates = Array.from(
+      document.querySelectorAll("div, section, article, td")
+    ).filter((el) => {
+      // Exclude structural UI chrome
+      if (el.closest("header, footer, nav, aside")) return false;
+      if (el.id && /header|footer|nav|sidebar|menu|ad|banner/i.test(el.id))
+        return false;
+      if (
+        el.className &&
+        /header|footer|nav|sidebar|menu|ad|banner/i.test(
+          typeof el.className === "string" ? el.className : ""
+        )
+      )
+        return false;
+      return true;
+    });
+
+    let bestEl = null;
+    let bestLen = 0;
+    for (const el of candidates) {
+      // Only consider direct text length to avoid summing nested containers
+      const textLen = (el.innerText || el.textContent || "").trim().length;
+      if (textLen > bestLen) {
+        bestLen = textLen;
+        bestEl = el;
+      }
+    }
+
+    if (bestEl && bestLen > 200) {
+      ensureId(bestEl, "__a11y-main-content");
+      bestEl.setAttribute("role", "main");
+      bestEl.setAttribute("data-a11y-skip-target", "heuristic");
+      return { el: bestEl, confidence: "heuristic" };
+    }
+
+    // Priority 4 — Structural position: first block after header/nav
+    const headerOrNav = document.querySelector("header, nav");
+    if (headerOrNav) {
+      let sibling = headerOrNav.nextElementSibling;
+      while (sibling) {
+        const tag = sibling.tagName.toLowerCase();
+        if (!["script", "style", "link", "meta", "noscript"].includes(tag)) {
+          ensureId(sibling, "__a11y-main-content");
+          sibling.setAttribute("role", "main");
+          sibling.setAttribute("data-a11y-skip-target", "heuristic");
+          return { el: sibling, confidence: "heuristic" };
+        }
+        sibling = sibling.nextElementSibling;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Detect the footer element.
+   * Returns the element or null.
+   */
+  function detectFooter() {
+    const explicit =
+      document.querySelector("footer") ||
+      document.querySelector("[role='contentinfo']");
+    if (explicit) {
+      ensureId(explicit, "__a11y-footer-content");
+      return explicit;
+    }
+
+    const conventions = [
+      "#footer",
+      "#site-footer",
+      "#page-footer",
+      ".footer",
+      ".site-footer",
+      ".page-footer",
+    ];
+    for (const sel of conventions) {
+      try {
+        const el = document.querySelector(sel);
+        if (el) {
+          ensureId(el, "__a11y-footer-content");
+          return el;
+        }
+      } catch (_) {
+        /* ignore */
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Assign an ID to an element if it doesn't already have one.
+   */
+  function ensureId(el, fallbackId) {
+    if (!el.id) el.id = fallbackId;
+  }
+
+  /* ─── Skip Link: Inject ─── */
+  function initSkipLinks() {
+    if (pageHasSkipLink()) return;
+
+    const mainResult = detectMainContent();
+    const footerEl = detectFooter();
+
+    // Nothing to skip to — bail
+    if (!mainResult && !footerEl) return;
+
+    const bar = document.createElement("div");
+    bar.id = "__a11y-skip-bar";
+
+    const links = [];
+
+    if (mainResult) {
+      const a = document.createElement("a");
+      a.href = `#${mainResult.el.id}`;
+      a.className = "__a11y-skip-link";
+      a.textContent = "Skip to main content";
+      if (mainResult.confidence === "heuristic") {
+        a.setAttribute("data-a11y-confidence", "heuristic");
+      }
+      links.push(a);
+    }
+
+    if (footerEl) {
+      const a = document.createElement("a");
+      a.href = `#${footerEl.id}`;
+      a.className = "__a11y-skip-link";
+      a.textContent = "Skip to footer";
+      links.push(a);
+    }
+
+    links.forEach((a) => bar.appendChild(a));
+
+    // Insert as the absolute first child of body
+    document.body.insertBefore(bar, document.body.firstChild);
+  }
+
   /* ─── Inject base CSS ─── */
   const style = document.createElement("style");
   style.id = "__a11y-style";
   style.textContent = `
     *, *::before, *::after { box-sizing: border-box; }
+
+    /* ── Skip Links ── */
+    #__a11y-skip-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2147483647;
+      display: flex;
+      gap: 4px;
+      padding: 0;
+      margin: 0;
+      pointer-events: none;
+    }
+
+    .__a11y-skip-link {
+      /* Hidden off-screen until focused */
+      position: absolute;
+      top: -999px;
+      left: 8px;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+      overflow: hidden;
+      width: 1px;
+      height: 1px;
+
+      /* Appearance when visible */
+      background: #1d4ed8;
+      color: #ffffff !important;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none !important;
+      border-radius: 0 0 8px 8px;
+      padding: 10px 18px;
+      pointer-events: auto;
+      border: 2px solid #ffffff;
+      border-top: none;
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.4);
+      transition: background 0.15s;
+    }
+
+    .__a11y-skip-link:focus,
+    .__a11y-skip-link:focus-visible {
+      /* Snap into view */
+      position: fixed;
+      top: 0;
+      left: auto;
+      clip: auto;
+      clip-path: none;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      outline: 3px solid #fbbf24;
+      outline-offset: 2px;
+    }
+
+    /* Offset each link so they appear side by side when both are focused */
+    .__a11y-skip-link:focus:nth-child(2),
+    .__a11y-skip-link:focus-visible:nth-child(2) {
+      left: auto;
+    }
+
+    .__a11y-skip-link:hover {
+      background: #1e40af;
+    }
 
     #__a11y-launcher {
       all: initial;
@@ -93,7 +413,6 @@
       .__a11y-font-display { color: #f1f5f9 !important; }
       .__a11y-color-row { background: #1e293b !important; border-color: #334155 !important; }
       .__a11y-color-label { color: #e2e8f0 !important; }
-      /* #94a3b8 on #0f172a = 4.6:1 WCAG AA ✓ */
       .__a11y-section-label { color: #94a3b8 !important; }
       .__a11y-close { color: #94a3b8 !important; }
       .__a11y-close:hover { background: #1e293b !important; color: #f1f5f9 !important; }
@@ -137,7 +456,6 @@
       cursor: pointer !important;
       padding: 6px;
       border-radius: 8px;
-      /* #374151 on #ffffff = 10.7:1 WCAG AAA ✓ */
       color: #374151;
       display: flex;
       align-items: center;
@@ -154,7 +472,6 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .07em;
-      /* #475569 on #ffffff = 5.9:1 WCAG AA ✓ */
       color: #475569;
       margin-bottom: 8px;
     }
@@ -173,7 +490,6 @@
       text-align: left;
       font-family: inherit;
       font-size: 13.5px;
-      /* #1e293b on #f8fafc = 14.7:1 WCAG AAA ✓ */
       color: #1e293b;
       transition: background .13s, border-color .13s;
       margin-bottom: 5px;
@@ -230,7 +546,6 @@
       text-align: center;
       font-size: 14px;
       font-weight: 700;
-      /* #1e293b on #ffffff = 14.7:1 WCAG AAA ✓ */
       color: #1e293b;
       padding: 0 4px;
     }
@@ -268,7 +583,6 @@
       align-items: center;
       gap: 8px;
       font-size: 13.5px;
-      /* #1e293b on #f8fafc = 14.7:1 WCAG AAA ✓ */
       color: #1e293b;
       font-weight: 500;
     }
@@ -314,7 +628,6 @@
       cursor: pointer !important;
       padding: 5px;
       border-radius: 7px;
-      /* #374151 on #000000ff = 10.7:1 WCAG AAA ✓ */
       color: #374151;
       display: flex;
       align-items: center;
@@ -330,7 +643,6 @@
       border: 1px solid #fca5a5;
       border-radius: 10px;
       background: #fff1f2;
-      /* #991b1b on #fff1f2 = 7.2:1 WCAG AAA ✓ */
       color: #991b1b;
       font-family: inherit;
       font-size: 13.5px;
@@ -354,7 +666,6 @@
       text-decoration: underline;
     }
 
-
     /* Applied classes */
     html.accessibility-high-contrast * { border-color: #000 !important; }
     html.accessibility-high-contrast body { background: #fff !important; color: #000 !important; }
@@ -369,29 +680,14 @@
 
   /* ─── Cursor styles ─── */
   function buildCursorSVG(fill, stroke) {
-    /*
-     * fill   = cursor body color  (settings.cursorColor)
-     * stroke = outline color      (settings.cursorBgColor)
-     *
-     * Hotspots:
-     *   arrow    — (4, 2)   tip of pointer
-     *   pointer  — (9, 1)   tip of index finger
-     *   text     — (10, 14) centre of I-beam
-     *   others   — (16, 16) centre
-     */
     const enc = (svg, hx, hy) =>
       `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hx} ${hy}, auto`;
 
-    /* Arrow */
     const arrowSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="32" viewBox="0 0 28 32">
       <path d="M4 2 L4 26 L9 21 L13 30 L17 28 L13 19 L21 19 Z"
         fill="${fill}" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round"/>
     </svg>`;
 
-    /*
-     * Pointer hand — index finger extended, other fingers curled
-     * Drawn at 28×34, finger tip at ~(9,1)
-     */
     const pointerSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="34" viewBox="0 0 28 34">
       <path d="
         M9 1
@@ -423,7 +719,6 @@
       " fill="${fill}" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round"/>
     </svg>`;
 
-    /* I-beam text cursor */
     const textSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="28" viewBox="0 0 20 28">
       <line x1="10" y1="0"  x2="10" y2="28" stroke="${stroke}" stroke-width="3.5" stroke-linecap="round"/>
       <line x1="4"  y1="0"  x2="16" y2="0"  stroke="${stroke}" stroke-width="3.5" stroke-linecap="round"/>
@@ -433,7 +728,6 @@
       <line x1="4"  y1="28" x2="16" y2="28" stroke="${fill}"   stroke-width="2"   stroke-linecap="round"/>
     </svg>`;
 
-    /* Not-allowed */
     const notAllowedSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
       <circle cx="16" cy="16" r="13" fill="none" stroke="${stroke}" stroke-width="4.5"/>
       <line x1="5.5" y1="5.5" x2="26.5" y2="26.5" stroke="${stroke}" stroke-width="4.5" stroke-linecap="round"/>
@@ -441,7 +735,6 @@
       <line x1="5.5" y1="5.5" x2="26.5" y2="26.5" stroke="${fill}" stroke-width="3" stroke-linecap="round"/>
     </svg>`;
 
-    /* Crosshair */
     const crosshairSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
       <line x1="16" y1="1"  x2="16" y2="12" stroke="${stroke}" stroke-width="3.5" stroke-linecap="round"/>
       <line x1="16" y1="20" x2="16" y2="31" stroke="${stroke}" stroke-width="3.5" stroke-linecap="round"/>
@@ -455,7 +748,6 @@
       <circle cx="16" cy="16" r="4.5" fill="none" stroke="${fill}" stroke-width="2"/>
     </svg>`;
 
-    /* Grab / open hand */
     const grabSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="30" viewBox="0 0 28 30">
       <path d="
         M5 13
@@ -807,7 +1099,6 @@
     panelOpen = false;
     panel.style.display = "none";
     launcher.setAttribute("aria-expanded", "false");
-    /* Return focus to trigger — WCAG 2.4.3 Focus Order ✓ */
     launcher.focus();
   }
 
@@ -865,4 +1156,41 @@
     if (e.key === "Escape" && panelOpen) closePanel();
     trapFocus(e);
   });
+
+  /* ─── Init skip links ─── */
+  // Run after DOM is ready; also handle the SPA/late-render case with a
+  // short MutationObserver fallback so <main> injected after script exec is caught.
+  function tryInitSkipLinks() {
+    if (document.getElementById("__a11y-skip-bar")) return; // already done
+    const mainEl =
+      document.querySelector("main") ||
+      document.querySelector("[role='main']") ||
+      document.querySelector(
+        "#main-content,#main,#content,#primary,#page-content,.main-content,.page-content,.content-area,article,section"
+      );
+    if (
+      mainEl ||
+      document.querySelector("footer,[role='contentinfo'],#footer,.footer")
+    ) {
+      initSkipLinks();
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", tryInitSkipLinks);
+  } else {
+    tryInitSkipLinks();
+  }
+
+  // MutationObserver fallback for SPAs / dynamically rendered pages
+  const _skipObserver = new MutationObserver(() => {
+    if (document.getElementById("__a11y-skip-bar")) {
+      _skipObserver.disconnect();
+      return;
+    }
+    tryInitSkipLinks();
+  });
+  _skipObserver.observe(document.body, { childList: true, subtree: true });
+
+  setTimeout(() => _skipObserver.disconnect(), 10000);
 })();
