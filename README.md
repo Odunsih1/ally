@@ -16,6 +16,8 @@ A lightweight, zero-dependency accessibility widget you can drop into any websit
 - Hide images
 - Increased text spacing
 - Readable font toggle
+- Background color adjustment
+- Smart Skip Link
 - Reset all settings
 
 ---
