@@ -7,16 +7,34 @@
     cursorSize: "normal",
     cursorColor: "#000000",
     cursorBgColor: "#ffffff",
-    highContrast: false,
-    invertColors: false,
-    grayscale: false,
+    visualMode: "none", // "none" | "highContrast" | "invert" | "grayscale"
     textSpacing: false,
     hideImages: false,
     readableFont: false,
     bgColor: "",
     textColor: "",
   };
-  let settings = { ...defaults };
+
+  const STORAGE_KEY = "__a11y_widget_settings_v1";
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { ...defaults };
+      const parsed = JSON.parse(raw);
+      return { ...defaults, ...parsed };
+    } catch (_) {
+      return { ...defaults };
+    }
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    } catch (_) {
+    }
+  }
+
+  let settings = loadSettings();
   let panelOpen = false;
   let cursorStyleEl = null;
 
@@ -674,7 +692,7 @@
     html.accessibility-hide-images img,
     html.accessibility-hide-images [role=img],
     html.accessibility-hide-images figure { visibility: hidden !important; }
-    html.accessibility-readable-font * { font-family: Arial, Helvetica, sans-serif !important; }
+    html.accessibility-readable-font * { font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif !important; }
   `;
   document.head.appendChild(style);
 
@@ -849,6 +867,22 @@
     `;
   }
 
+  /**
+   * Lazily load Atkinson Hyperlegible (Braille Institute, OFL-licensed) the
+   * first time "readable font" is switched on, instead of every page load.
+   * Arial remains in the CSS font-family fallback chain, so visitors are
+   * never left without a readable typeface if this request is blocked or slow.
+   */
+  function ensureReadableFontLoaded() {
+    if (document.getElementById("__a11y-readable-font-link")) return;
+    const link = document.createElement("link");
+    link.id = "__a11y-readable-font-link";
+    link.rel = "stylesheet";
+    link.href =
+      "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap";
+    document.head.appendChild(link);
+  }
+
   /* ─── SVG icons ─── */
   const icons = {
     accessibility: `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 3.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-3 4.5h6a.5.5 0 0 1 .45.72L14 13.5V18a.75.75 0 0 1-1.5 0v-3.5h-1V18a.75.75 0 0 1-1.5 0v-4.5l-1.45-2.78A.5.5 0 0 1 9 10z"/></svg>`,
@@ -875,6 +909,25 @@
       <button class="__a11y-row${on ? " __a11y-on" : ""}"
         data-key="${key}"
         role="switch"
+        aria-checked="${on}"
+        aria-label="${label}: ${on ? "on" : "off"}">
+        <span class="__a11y-row-label" aria-hidden="true">${
+          icons[iconKey] || ""
+        }${label}</span>
+        <div class="__a11y-toggle" aria-hidden="true"></div>
+      </button>`;
+  }
+
+  /**
+   * Mutually-exclusive variant of toggleRow, used for the visual mode group
+   * (high contrast / invert / grayscale) so only one can be active at a time.
+   */
+  function radioRow(value, label, iconKey) {
+    const on = settings.visualMode === value;
+    return `
+      <button class="__a11y-row${on ? " __a11y-on" : ""}"
+        data-visual-mode="${value}"
+        role="radio"
         aria-checked="${on}"
         aria-label="${label}: ${on ? "on" : "off"}">
         <span class="__a11y-row-label" aria-hidden="true">${
@@ -953,11 +1006,15 @@
           }
         </div>
 
-        <div role="group" aria-labelledby="__a11y-lbl-visual">
-          <div class="__a11y-section-label" id="__a11y-lbl-visual" aria-hidden="true">Visual</div>
-          ${toggleRow("highContrast", "High contrast", "contrast")}
-          ${toggleRow("invertColors", "Invert colors", "eye")}
-          ${toggleRow("grayscale", "Grayscale", "contrast")}
+        <div role="radiogroup" aria-labelledby="__a11y-lbl-visual">
+          <div class="__a11y-section-label" id="__a11y-lbl-visual" aria-hidden="true">Visual (choose one)</div>
+          ${radioRow("highContrast", "High contrast", "contrast")}
+          ${radioRow("invert", "Invert colors", "eye")}
+          ${radioRow("grayscale", "Grayscale", "contrast")}
+        </div>
+
+        <div role="group" aria-labelledby="__a11y-lbl-display">
+          <div class="__a11y-section-label" id="__a11y-lbl-display" aria-hidden="true">Display</div>
           ${toggleRow("hideImages", "Hide images", "image")}
         </div>
 
@@ -988,14 +1045,20 @@
   function applySettings() {
     const html = document.documentElement;
     html.style.fontSize = `${settings.fontSize}%`;
-    html.classList.toggle("accessibility-high-contrast", settings.highContrast);
+    html.classList.toggle(
+      "accessibility-high-contrast",
+      settings.visualMode === "highContrast"
+    );
     html.classList.toggle("accessibility-text-spacing", settings.textSpacing);
     html.classList.toggle("accessibility-hide-images", settings.hideImages);
     html.classList.toggle("accessibility-readable-font", settings.readableFont);
 
-    if (settings.invertColors) {
+    // visualMode is mutually exclusive on purpose — stacking high contrast
+    // with an invert/grayscale filter produced confusing, sometimes
+    // unreadable combinations.
+    if (settings.visualMode === "invert") {
       html.style.filter = "invert(1) hue-rotate(180deg)";
-    } else if (settings.grayscale) {
+    } else if (settings.visualMode === "grayscale") {
       html.style.filter = "grayscale(1)";
     } else {
       html.style.filter = "none";
@@ -1004,7 +1067,10 @@
     document.body.style.backgroundColor = settings.bgColor || "";
     document.body.style.color = settings.textColor || "";
 
+    if (settings.readableFont) ensureReadableFontLoaded();
+
     applyCustomCursors();
+    saveSettings();
   }
 
   /* ─── Render panel ─── */
@@ -1018,6 +1084,10 @@
 
     panel.querySelectorAll(".__a11y-row[data-key]").forEach((btn) => {
       btn.onclick = () => toggleSetting(btn.dataset.key);
+    });
+
+    panel.querySelectorAll(".__a11y-row[data-visual-mode]").forEach((btn) => {
+      btn.onclick = () => setVisualMode(btn.dataset.visualMode);
     });
 
     panel.querySelectorAll("input[data-color-key]").forEach((input) => {
@@ -1119,6 +1189,14 @@
     renderPanel();
   }
 
+  function setVisualMode(mode) {
+    // Clicking the active mode again turns it off. The three modes are
+    // mutually exclusive so they can never stack into a confusing combination.
+    settings.visualMode = settings.visualMode === mode ? "none" : mode;
+    applySettings();
+    renderPanel();
+  }
+
   function resetSettings() {
     settings = { ...defaults };
     applySettings();
@@ -1144,9 +1222,32 @@
   document.body.appendChild(launcher);
   document.body.appendChild(panel);
 
+  // Apply any settings restored from a previous visit (font size, colors,
+  // visual mode, etc.) immediately. Previously this only ever ran after a
+  // user interacted with the panel, so saved preferences never actually
+  // took effect on page load.
+  applySettings();
+
   /* Close on outside click */
+  // NOTE: every control inside the panel (toggles, font size, reset, the
+  // visual-mode radio group) calls renderPanel(), which does
+  // `panel.innerHTML = buildPanel()`. That destroys and recreates the exact
+  // button the user just clicked *while the click event is still bubbling*.
+  // By the time this listener runs, `e.target` is a detached node, so
+  // `panel.contains(e.target)` wrongly returns false and the panel closes
+  // after every interaction. `composedPath()` is captured at dispatch time,
+  // before any handler runs, so it still lists the panel correctly even
+  // after the re-render — this checks that instead.
   document.addEventListener("click", (e) => {
-    if (panelOpen && !panel.contains(e.target) && e.target !== launcher) {
+    if (!panelOpen) return;
+    const path = typeof e.composedPath === "function" ? e.composedPath() : null;
+    const clickedInsidePanel = path
+      ? path.includes(panel)
+      : panel.contains(e.target);
+    const clickedLauncher = path
+      ? path.includes(launcher)
+      : e.target === launcher;
+    if (!clickedInsidePanel && !clickedLauncher) {
       closePanel();
     }
   });
