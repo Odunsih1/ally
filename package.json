@@ -1,6 +1,6 @@
 {
   "name": "@odunsih/ally",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A lightweight zero-dependency accessibility widget",
   "main": "accessibility-launcher.js",
   "files": [
